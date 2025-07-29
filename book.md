@@ -931,4 +931,3 @@ peter.send_msg("Hello, I'm Peter!")
 
 ## 参考链接
 + https://blog.csdn.net/qq_18529581/article/details/149184981?spm=1001.2014.3001.5502
-+ https://www.cnblogs.com/liugp/p/17134320.html#9%E7%AD%96%E7%95%A5%E6%A8%A1%E5%BC%8Fstrategy
