@@ -1049,6 +1049,213 @@ bitcoffee.close()
 
 点赞关注不迷路，比特咖啡的故事还会继续讲下去..
 
+### 模板方法模式
+定义了一套算法的骨架，讲某些具体的步骤延迟到子类中实现。 主要用于不改变算法结构的情况下重新定义算法的某些步骤，以适应新的需求。
+
+#### 模板方法的角色
++ 抽象类： 作为算法的骨架，该抽象类中包含了算法的核心部分和一些抽象方法，也可能包含一些具体方法，其中抽象方法表示算法中需要子类实现的具体步骤
++ 具体子类：继承抽象类，实现抽象方法以完成算法的具体步骤。 子类也可以实现一些 钩子方法 以影响算法的执行。
+
+#### 模板方法的优缺点
+优点：
++ 提高代码的复用性
++ 提高代码的可扩展性
++ 符合开闭原则
+
+缺点：
++ 抽象类和具体子类之间耦合度较高（组合优于继承），抽象类发生变化时，可能会影响到所有子类，比如父类增加新的抽象方法，那么所有的子类需要都实现一遍。
+
+#### 应用场景
++ 自上而下的父类视角：在抽象类中实现一个算法的公共部分，将可变的部分 留给具体子类实现
++ 自下而上的子类视角：将子类中的公共部分提取出来，集中到父类中，避免代码重复
+
+  
+示例场景： 文档处理器
+假设我们有一个文档处理器，它需要执行以下步骤：
+
+打开文档
+解析文档内容
+处理文档内容
+保存处理后的文档
+```python
+from abc import ABC, abstractmethod
+
+# 抽象类：文档处理器
+class DocumentProcessor(ABC):
+    def process_document(self):
+        """模板方法，定义处理文档的步骤"""
+        self.open_document()
+        content = self.parse_document()
+        processed_content = self.handle_content(content)
+        self.save_document(processed_content)
+    
+    @abstractmethod
+    def open_document(self):
+        """抽象方法：打开文档"""
+        pass
+    
+    @abstractmethod
+    def parse_document(self):
+        """抽象方法：解析文档内容"""
+        pass
+    
+    def handle_content(self, content):
+        """默认实现：处理文档内容"""
+        # 默认处理逻辑，子类可以重写
+        return content.upper()
+    
+    @abstractmethod
+    def save_document(self, processed_content):
+        """抽象方法：保存处理后的文档"""
+        pass
+
+# 具体类：PDF文档处理器
+class PDFProcessor(DocumentProcessor):
+    def open_document(self):
+        print("打开PDF文档")
+    
+    def parse_document(self):
+        print("解析PDF内容")
+        return "PDF内容"
+    
+    def save_document(self, processed_content):
+        print(f"保存处理后的PDF内容：{processed_content}")
+
+# 具体类：Word文档处理器
+class WordProcessor(DocumentProcessor):
+    def open_document(self):
+        print("打开Word文档")
+    
+    def parse_document(self):
+        print("解析Word内容")
+        return "Word内容"
+    
+    def save_document(self, processed_content):
+        print(f"保存处理后的Word内容：{processed_content}")
+    
+    def handle_content(self, content):
+        # 重写处理内容的方法
+        return content.lower()
+
+# 测试代码
+def main():
+    # 创建PDF处理器实例
+    pdf_processor = PDFProcessor()
+    pdf_processor.process_document()
+    
+    print("\n")
+    
+    # 创建Word处理器实例
+    word_processor = WordProcessor()
+    word_processor.process_document()
+
+if __name__ == "__main__":
+    main()
+```
+#### 虚构故事
+接-状态模式中的bitcoffee故事， 老板姬比特要给比特咖啡研发两款数字咖啡产品并通过这两款引流想打造成爆款（美式和卡布奇诺）， 程序员-幸瑞接过了这个活，他使用-模板方法模式设计了数字咖啡的制作流程。
+且看他的代码是如何实现的。
+```python
+from abc import ABC, abstractmethod
+
+class CoffeeMaker(ABC):
+    def make_coffee(self):
+        """模板方法，定义制作咖啡的整体流程"""
+        self.grind_coffee()
+        self.brew_coffee()
+        self.add_ingredients()
+        self.finish_coffee()
+    
+    @abstractmethod
+    def grind_coffee(self):
+        """抽象方法：研磨咖啡豆"""
+        pass
+    
+    @abstractmethod
+    def brew_coffee(self):
+        """抽象方法：冲泡咖啡"""
+        pass
+    
+    def add_ingredients(self):
+        """默认方法：添加配料"""
+        # 默认不添加任何配料，子类可以重写
+        pass
+    
+    @abstractmethod
+    def finish_coffee(self):
+        """抽象方法：完成咖啡制作"""
+        pass
+```
+代码写到这，骨架算是搭建起来了，幸瑞准备去外面抽根烟休息一会，刚要起身锁屏时，老板-姬比特走了过来看到屏幕一堆pass，一万个问号， 老幸，你搞这么多pass干什么， pass是占位符表示什么也不做，我还是懂一点python的，你小子是不是急着开溜摸鱼啊。
+幸瑞连忙给老板解释说，我这是把数字咖啡的制作流程先抽象了出来，具体的实现方式还没写呢，办公室这会有点闷，我先出去透透气，顺便整理下思路。 随后，幸瑞按下了win+L潇洒的离去。 只剩下老板愣在原地表情瞬间凝固。
+
+20min later..
+幸瑞缓缓的走进办公室开始干活..，见他飞快的敲击着新买的Filco机械键盘，那清脆的声音响彻狭小的办公室。 不一会儿突然安静了下来。 原来功能实现了！看看他是如何实现的。
+首先，他创建两个具体的子类 AmericanoMaker 和 CappuccinoMaker，分别对应美式咖啡和卡布奇诺的制作步骤。
+```python
+class AmericanoMaker(CoffeeMaker):
+    def grind_coffee(self):
+        print("研磨中度烘焙的咖啡豆")
+    
+    def brew_coffee(self):
+        print("用热水冲泡咖啡，制作美式咖啡")
+    
+    def add_ingredients(self):
+        print("加入适量的热水")
+    
+    def finish_coffee(self):
+        print("美式咖啡制作完成，可以享用了！")
+
+
+class CappuccinoMaker(CoffeeMaker):
+    def grind_coffee(self):
+        print("研磨深度烘焙的咖啡豆")
+    
+    def brew_coffee(self):
+        print("用蒸汽牛奶冲泡咖啡，制作卡布奇诺")
+    
+    def add_ingredients(self):
+        print("打发牛奶并加入奶泡")
+    
+    def finish_coffee(self):
+        print("卡布奇诺制作完成，可以享用了！")
+
+
+# 接着，为了验证设计是否正确，编写了测试代码，分别创建美式咖啡和卡布奇诺的制作实例，并调用 make_coffee 方法
+def main():
+    # 创建美式咖啡制作实例
+    americano_maker = AmericanoMaker()
+    print("制作美式咖啡：")
+    americano_maker.make_coffee()
+    
+    print("\n")
+    
+    # 创建卡布奇诺制作实例
+    cappuccino_maker = CappuccinoMaker()
+    print("制作卡布奇诺：")
+    cappuccino_maker.make_coffee()
+
+if __name__ == "__main__":
+    main()
+
+
+# 运行结果如下
+制作美式咖啡：
+研磨中度烘焙的咖啡豆
+用热水冲泡咖啡，制作美式咖啡
+加入适量的热水
+美式咖啡制作完成，可以享用了！
+
+制作卡布奇诺：
+研磨深度烘焙的咖啡豆
+用蒸汽牛奶冲泡咖啡，制作卡布奇诺
+打发牛奶并加入奶泡
+卡布奇诺制作完成，可以享用了！
+```
+老板，你的数字咖啡制作好了，请享用！ 幸瑞大声的说道，办公室的N多双眼睛瞬间将焦点转移到了幸瑞的工位上..  
+
+欲知后事如何，点赞关注不迷路，比特咖啡的故事还会继续讲下去.
+
 ### 其他设计模式 未完待续, 点赞关注不迷路!
 
 ## 设计模式的7原则
