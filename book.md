@@ -1256,6 +1256,169 @@ if __name__ == "__main__":
 
 欲知后事如何，点赞关注不迷路，比特咖啡的故事还会继续讲下去.
 
+### 访问者模式
+是一种将算法和其作用的对象分离开的设计模式。 这种模式允许在不改变现有对象结构情况下向对象结构中添加新的行为
+
+#### 实现思路
+核心思想是： 将一系列算法封装到访问者对象中，并将访问者对象传递给对象结构中的元素，以便元素可以调用访问者对象中的算法。
+精髓：访问者对象可以通过访问元素中的数据和操作来实现算法，从而避免了对元素结构的直接访问
+
+#### 访问者模式的角色
++ 访问者接口： 定义了访问元素的方法，这些方法通常以不同的重载形式出现，以便针对不同类型的元素采取不同的行为
++ 具体访问者：实现访问者接口，提供了算法的具体实现
++ 元素：定义了用于接收访问者的方法，通常以accept()的形式出现， 元素可以将自己作为参数传递给访问者对象
++ 具体元素：实现了元素接口，提供了具体的数据和操作，同时提供了接收访问者的方法
++ 对象结构（可不需要）：定义了元素的集合，可以提供一些方法以便访问者能够遍历整个集合。
+
+#### 访问者模式的优缺点
+优点：
++ 良好的封装性：将算法与其作用的对象分离开来，避免了对元素结构的直接访问
++ 良好的扩展性：可以方便的实现元素结构的复杂算法，不需要修改元素结构本身
+
+缺点：
++ 实现较为复杂，可能会导致访问者对象的复杂性，不易理解
++ 可能会导致元素结构的扩展性变得差，因为每添加一个新的元素类型时，都需要修改所有的访问者对象
+
+```python
+"""
+图形编辑器是
+"""
+
+from abc import ABC, abstractmethod
+
+
+# 抽象图形元素类 包含绘制方法和接受访问者的方法
+class GraphicElement(ABC):
+    @abstractmethod
+    def draw(self):
+        """绘制图形元素"""
+        pass
+
+    @abstractmethod
+    def accept(self, visitor):
+        """接受访问者"""
+        pass
+
+
+#  具体图形元素类：圆形、矩形、三角形
+class Circle(GraphicElement):
+    def draw(self):
+        print("绘制圆形。")
+
+    def accept(self, visitor):
+        visitor.visit_circle(self)
+
+
+class Rectangle(GraphicElement):
+    def draw(self):
+        print("绘制矩形。")
+
+    def accept(self, visitor):
+        visitor.visit_rectangle(self)
+
+
+class Triangle(GraphicElement):
+    def draw(self):
+        print("绘制三角形。")
+
+    def accept(self, visitor):
+        visitor.visit_triangle(self)
+
+
+# 定义访问者接口，包含对不同图形元素的操作方法
+class GraphicVisitor(ABC):
+    @abstractmethod
+    def visit_circle(self, circle):
+        """访问圆形"""
+        pass
+
+    @abstractmethod
+    def visit_rectangle(self, rectangle):
+        """访问矩形"""
+        pass
+
+    @abstractmethod
+    def visit_triangle(self, triangle):
+        """访问三角形"""
+        pass
+
+
+# 具体访问者类：选择工具、填充工具
+class SelectToolVisitor(GraphicVisitor):
+    def visit_circle(self, circle):
+        print("选择圆形。")
+
+    def visit_rectangle(self, rectangle):
+        print("选择矩形。")
+
+    def visit_triangle(self, triangle):
+        print("选择三角形。")
+
+
+class FillToolVisitor(GraphicVisitor):
+    def visit_circle(self, circle):
+        print("填充圆形。")
+
+    def visit_rectangle(self, rectangle):
+        print("填充矩形。")
+
+    def visit_triangle(self, triangle):
+        print("填充三角形。")
+
+
+# 对象结构类
+class Structure:
+
+    def __init__(self):
+        self.elements = []
+        self.visitors = []
+
+    def add_elements(self,  element):
+        self.elements.append(element)
+
+    def add_visitors(self, visitor):
+        self.visitors.append(visitor)
+
+    def accept(self):
+        for visitor in self.visitors:
+            for element in self.elements:
+                element.accept(visitor)
+
+
+def main():
+    circle = Circle()
+    rectangle = Rectangle()
+    triangle = Triangle()
+
+    select_tool = SelectToolVisitor()
+    fill_tool = FillToolVisitor()
+
+    print("使用选择工具：")
+    circle.accept(select_tool)
+    rectangle.accept(select_tool)
+    triangle.accept(select_tool)
+
+    print("\n使用填充工具：")
+    circle.accept(fill_tool)
+    rectangle.accept(fill_tool)
+    triangle.accept(fill_tool)
+
+    # 通过对象结构类调用
+    print("\n通过对象结构类调用：")
+    structure = Structure()
+    structure.add_elements(circle)
+    structure.add_elements(rectangle)
+    structure.add_elements(triangle)
+
+    structure.add_visitors(select_tool)
+    structure.add_visitors(fill_tool)
+    structure.accept()
+
+
+if __name__ == "__main__":
+    main()
+```
+
 ### 其他设计模式 未完待续, 点赞关注不迷路!
 
 ## 设计模式的7原则
