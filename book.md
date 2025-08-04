@@ -1420,7 +1420,79 @@ if __name__ == "__main__":
 ```
 
 #### 虚构故事
-接-模板方法模式中的比特咖啡故事， 老板姬比特打算把拉花技巧引入到数字咖啡中（本质是通过一系列预设的形状渲染咖啡），比特咖啡APP的普通会员只能选择基本的图案进行拉花，而VIP会员可以选择更加精美和丰富的图案来提升数字咖啡的视觉效果。并且美其名曰“艺术咖啡”。
+接-模板方法模式中的比特咖啡故事（[传送门](https://blog.csdn.net/qq_18529581/article/details/149810442?spm=1001.2014.3001.5501)）， 老板姬比特打算把拉花技巧引入到数字咖啡中（其本质是通过一系列预设的形状来“渲染”咖啡），比特咖啡APP的普通会员只能选择基本的图案进行拉花，而VIP会员可以选择更加精美和丰富的图案来提升数字咖啡的视觉效果。并且美其名曰“艺术咖啡”。
+这个任务又交给了我们的程序员-幸瑞。
+幸瑞打算在之前一节 模板方法模式中那样，在 AmericanoMaker 和 CappuccinoMaker 的父类 CoffeeMaker 中添加一个 制作拉花的方法，但是想了下觉得不太合适，因为美式咖啡是做不了拉花的。 但是如果只在 CappuccinoMaker 后增加制作拉花的方法，那如果之后又要加入 拿铁、玛奇朵、摩卡等等，难道在每一个后面都追加方法吗？ 他想到了使用 组合的方式来重构制作流程，但是有考虑到需求——比特咖啡本质是一个番茄钟，用制作咖啡的“咖啡时间”来模拟番茄钟的时间周期。 而且人们常饮用的咖啡也就那几种。 而且像——比特咖啡这种虚拟的数字咖啡，重在UI、UE上。 用拉花来说，用户看到的是最终的效果。  所以 用户可以作为 比特咖啡APP 的访问者，来体验 其中的元素——咖啡。 想到这.. 于是 幸瑞敲击着键盘记录下他的想法（demo）。
+他稍微改了下之前-模板方法一节中的代码，如下：
+```python
+class CoffeeMaker(ABC):
+    def make_coffee(self):
+        """模板方法，定义制作咖啡的整体流程"""
+        self.grind_coffee()
+        self.brew_coffee()
+        self.add_ingredients()
+        self.finish_coffee()
+    
+    @abstractmethod
+    def grind_coffee(self):
+        """抽象方法：研磨咖啡豆"""
+        pass
+    
+    @abstractmethod
+    def brew_coffee(self):
+        """抽象方法：冲泡咖啡"""
+        pass
+    
+    def add_ingredients(self):
+        """默认方法：添加配料"""
+        # 默认不添加任何配料，子类可以重写
+        pass
+    
+    @abstractmethod
+    def finish_coffee(self):
+        """抽象方法：完成咖啡制作"""
+        pass
+
+    @abstractmethod
+    def accept_visitor(self, visitor):
+        pass
+
+
+# 咖啡的制作过程是可以“观察的”， 本质是 用户 --> UI --> 咖啡元素。 也就是说 咖啡的制作过程通过动效视觉可以直接呈现给用户。
+class AmericanoMaker(CoffeeMaker):
+    def grind_coffee(self):
+        print("研磨中度烘焙的咖啡豆")
+    
+    def brew_coffee(self):
+        print("用热水冲泡咖啡，制作美式咖啡")
+    
+    def add_ingredients(self):
+        print("加入适量的热水")
+    
+    def finish_coffee(self):
+        print("美式咖啡制作完成，可以享用了！")
+
+    def accept_visitor(self, visitor):
+        visitor.visit_americano(self)
+
+
+class CappuccinoMaker(CoffeeMaker):
+    def grind_coffee(self):
+        print("研磨深度烘焙的咖啡豆")
+    
+    def brew_coffee(self):
+        print("用蒸汽牛奶冲泡咖啡，制作卡布奇诺")
+    
+    def add_ingredients(self):
+        print("打发牛奶并加入奶泡")
+    
+    def finish_coffee(self):
+        print("卡布奇诺制作完成，可以享用了！")
+
+    def accept_visitor(self, visitor):
+        visitor.visit_cappuccino(self)
+
+```
 
 
 ### 其他设计模式 未完待续, 点赞关注不迷路!
