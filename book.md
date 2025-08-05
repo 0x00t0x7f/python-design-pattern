@@ -1272,12 +1272,18 @@ if __name__ == "__main__":
 
 #### 访问者模式的优缺点
 优点：
++ 单一职责原则： 每个类只负责一项职责
 + 良好的封装性：将算法与其作用的对象分离开来，避免了对元素结构的直接访问
 + 良好的扩展性：可以方便的实现元素结构的复杂算法，不需要修改元素结构本身
 
 缺点：
++ 违反迪米特原则：元素向访问者暴露了内部信息。
 + 实现较为复杂，可能会导致访问者对象的复杂性，不易理解
-+ 可能会导致元素结构的扩展性变得差，因为每添加一个新的元素类型时，都需要修改所有的访问者对象
++ 元素类难以变更： 元素类需要维持与访问者的兼容，可能会导致元素结构的扩展性变得差，因为每添加一个新的元素类型时，都需要修改所有的访问者对象
++ 依赖具体类： 访问者模式依赖于具体类而不是接口， 违反了依赖倒置原则。
+
+#### 应用场景
+报表生成、用户界面显示、拦截器和过滤器等。
 
 ```python
 """
@@ -1420,18 +1426,23 @@ if __name__ == "__main__":
 ```
 
 #### 虚构故事
-接-模板方法模式中的比特咖啡故事（[传送门](https://blog.csdn.net/qq_18529581/article/details/149810442?spm=1001.2014.3001.5501)）， 老板姬比特打算把拉花技巧引入到数字咖啡中（其本质是通过一系列预设的形状来“渲染”咖啡），比特咖啡APP的普通会员只能选择基本的图案进行拉花，而VIP会员可以选择更加精美和丰富的图案来提升数字咖啡的视觉效果。并且美其名曰“艺术咖啡”。
+接-模板方法模式中的比特咖啡故事（[传送门](https://blog.csdn.net/qq_18529581/article/details/149810442?spm=1001.2014.3001.5501)）， 老板姬比特打算把拉花技巧引入到数字咖啡中（其本质是通过一系列预设的形状来“渲染”咖啡），比特咖啡APP的普通会员只能在配置界面选择基础的拉花图案，而VIP会员可以选择更加精美和丰富的拉花图案。也就是不同角色的访客看到的拉花视觉效果不同，老板给这个功能起了一个非常艺术的名字作为卖点——“艺术咖啡”。
 这个任务又交给了我们的程序员-幸瑞。
-幸瑞打算在之前一节 模板方法模式中那样，在 AmericanoMaker 和 CappuccinoMaker 的父类 CoffeeMaker 中添加一个 制作拉花的方法，但是想了下觉得不太合适，因为美式咖啡是做不了拉花的。 但是如果只在 CappuccinoMaker 后增加制作拉花的方法，那如果之后又要加入 拿铁、玛奇朵、摩卡等等，难道在每一个后面都追加方法吗？ 他想到了使用 组合的方式来重构制作流程，但是有考虑到需求——比特咖啡本质是一个番茄钟，用制作咖啡的“咖啡时间”来模拟番茄钟的时间周期。 而且人们常饮用的咖啡也就那几种。 而且像——比特咖啡这种虚拟的数字咖啡，重在UI、UE上。 用拉花来说，用户看到的是最终的效果。  所以 用户可以作为 比特咖啡APP 的访问者，来体验 其中的元素——咖啡。 想到这.. 于是 幸瑞敲击着键盘记录下他的想法（demo）。
-他稍微改了下之前-模板方法一节中的代码，如下：
+幸瑞打算在之前一节 模板方法模式中那样，在 AmericanoMaker 和 CappuccinoMaker 的父类 CoffeeMaker 中添加一个 制作拉花的方法，但是想了下觉得不太合适，因为美式咖啡是做不了拉花的。 但是如果只在 CappuccinoMaker 后增加制作拉花的方法那如果之后又要加入 拿铁、玛奇朵、摩卡等等，就需要在每一个类后面都追加方法，这不太现实。 他想到了使用 组合的方式来重构制作流程，但是又考虑到比特咖啡APP本质是一个番茄钟（用制作咖啡的“咖啡时间”来模拟番茄钟的时间周期），而且人们常饮用的咖啡也就那几种，像——比特咖啡这种虚拟的数字咖啡，重点在UI、UE上。 用户看到的是一种制作的过程和效果。 可以做一个配置页面，用于用户的自定义配置，制作咖啡的时候先读取配置然后根据用户的自定义配置微调。 想到这.. 于是 幸瑞敲击着键盘记录下了他的想法（demo）。
+他稍微改了下之前-模板方法一节中的 CoffeeMaker 咖啡制作基类，修改如下：
 ```python
 class CoffeeMaker(ABC):
     def make_coffee(self):
         """模板方法，定义制作咖啡的整体流程"""
+        self.read_config()  # 新增读取配置
         self.grind_coffee()
         self.brew_coffee()
         self.add_ingredients()
         self.finish_coffee()
+
+    def read_config(self):
+        """读取配置"""
+        return "配置信息"
     
     @abstractmethod
     def grind_coffee(self):
@@ -1453,47 +1464,62 @@ class CoffeeMaker(ABC):
         """抽象方法：完成咖啡制作"""
         pass
 
+
+class CoffeeArtConfigPage(ABC):
+
+    @abstractmethod
+    def select(self):
+        """ 选择配置"""
+        pass
+
+    def read(self):
+        """ 提供对外的读取配置的接口"""
+        return "配置信息"
+
     @abstractmethod
     def accept_visitor(self, visitor):
         pass
 
 
-# 咖啡的制作过程是可以“观察的”， 本质是 用户 --> UI --> 咖啡元素。 也就是说 咖啡的制作过程通过动效视觉可以直接呈现给用户。
-class AmericanoMaker(CoffeeMaker):
-    def grind_coffee(self):
-        print("研磨中度烘焙的咖啡豆")
-    
-    def brew_coffee(self):
-        print("用热水冲泡咖啡，制作美式咖啡")
-    
-    def add_ingredients(self):
-        print("加入适量的热水")
-    
-    def finish_coffee(self):
-        print("美式咖啡制作完成，可以享用了！")
+class BasicCoffeeArtConfigPage(CoffeeArtConfigPage):
+
+    def select(self):
+        print("基础的拉花图案配置库")
 
     def accept_visitor(self, visitor):
-        visitor.visit_americano(self)
+        visitor.visit_config(self)
 
 
-class CappuccinoMaker(CoffeeMaker):
-    def grind_coffee(self):
-        print("研磨深度烘焙的咖啡豆")
-    
-    def brew_coffee(self):
-        print("用蒸汽牛奶冲泡咖啡，制作卡布奇诺")
-    
-    def add_ingredients(self):
-        print("打发牛奶并加入奶泡")
-    
-    def finish_coffee(self):
-        print("卡布奇诺制作完成，可以享用了！")
+class VIPCoffeeArtConfigPage(CoffeeArtConfigPage):
+
+    def select(self):
+        print("精美的拉花图案配置库")
 
     def accept_visitor(self, visitor):
-        visitor.visit_cappuccino(self)
+        visitor.visit_config(self)
 
+
+class UserVisitor(ABC):
+
+    @abstractmethod
+    def visit_config(self, config_page):
+        pass
+
+
+class GeneralUserVisitor(UserVisitor):
+
+    def visit_config(self, config_page):
+        print("普通用户可以选择基础的拉花图案。")
+        config_page.select()
+
+
+class VipUserVisitor(UserVisitor):
+
+    def visit_config(self, config_page):
+        print("VIP用户可以选择精美的拉花图案。")
+        config_page.select()
 ```
-
+demo算是写的差不多了，这还只是开始，后面还有很多待办..  幸瑞在工位上坐的有点久了，准备起身活动下..
 
 ### 其他设计模式 未完待续, 点赞关注不迷路!
 
