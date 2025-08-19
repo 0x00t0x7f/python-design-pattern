@@ -1521,6 +1521,75 @@ class VipUserVisitor(UserVisitor):
 ```
 demo算是写的差不多了，这还只是开始，后面还有很多需要完善..  幸瑞在工位上坐的有点久了，准备起身去室外活动下 等会再写..
 
+### 策略模式
+在程序运行时动态的选择不同的算法策略或者行为，是一种行为型设计模式。策略对象之间是独立的，没有共享状态，客户端自由选择不同的策略对象。
+
+#### 策略模式的角色
++ 策略接口类
++ 具体策略类
++ 上下文对象： 持有一个或多个策略对象，将具体的任务委托给其中的某个策略对象完成
+
+#### 策略模式的优缺点
+优点：
++ 提高代码的可维护性和可扩展性，满足开闭原则
++ 避免条件判断：通过策略模式，可以避免在代码中使用大量的条件判断语句，使代码更加简洁和易于维护
++ 具有一定的安全性，将算法封装起来，对于外部调用者只关注不同的策略的作用，无需关心策略的具体实现
+
+缺点：
++ 复杂度不可控，随着策略类的增多，客户端需要知道所有的策略类，并显式的选择不同的策略对象，会使代码变得复杂。
+
+#### 策略模式的应用场景举例
++ 满减、返现、促销等活动
++ 游戏的情节设置，打斗场景等
+
+```python
+# 定义支付策略接口类
+class PaymentStrategy(ABC):
+
+    @abstractmethod
+    def pay(self, money):
+        pass
+
+
+# 定义具体支付策略类
+class AliPayStrategy(PaymentStrategy):
+
+    def pay(self, money):
+        print(f"使用支付宝支付{money}元。")
+
+
+class WechatPayStrategy(PaymentStrategy):
+
+    def pay(self, money):
+        print(f"使用微信支付{money}元。")
+
+
+class PaymentContext:
+
+    def __init__(self, strategy: PaymentStrategy):
+        self.strategy = strategy
+
+    def set_strategy(self, strategy: PaymentStrategy):
+        self.strategy = strategy
+
+    def payment(self, money):
+        self.strategy.pay(money)
+
+
+# 支付终端
+def payment_client():
+    # 创建支付上下文对象，并初始化支付策略类
+    alipay = AliPayStrategy()
+    wechatpay = WechatPayStrategy()
+
+    context = PaymentContext(alipay)
+    context.payment(100)
+
+    context.set_strategy(wechatpay)
+    context.payment(200)
+```
+
+
 ### 其他设计模式 未完待续, 点赞关注不迷路!
 
 ## 设计模式的7原则
