@@ -1588,7 +1588,82 @@ def payment_client():
     context.set_strategy(wechatpay)
     context.payment(200)
 ```
+#### 策略模式虚构故事
+比特咖啡老板姬比特：幸瑞，我们比特数字咖啡最最最最重要的是盈利，我设计了一种套餐方案，给你2周时间把它实现了。
+包月2.9元：月月新鲜
+包季6.9元：季度优惠
+包年19.9元：年度超值
+牛马程序员幸瑞：好的，我准备把包月、包季、包年的价格策略分别做成不同的“策略类”。用户选哪个套餐，我们就用哪个策略来计算费用。这样不仅灵活，还能随时添加新的套餐，完全不影响现有系统！
+姬比特：听起来不错！那具体怎么实现呢？
+幸瑞：比如说，包月2.9元，包季6.9元，包年19.9元。我们可以把这些策略写成代码，让顾客根据自己的需求选择。而且，通过策略模式，我们还可以动态调整价格，比如搞个“半年特惠”，只需要加一个新的策略类就行了！
 
+且看幸瑞的实现代码：
+```python
+class PricingStrategy:
+    def calculate_cost(self, months):
+        pass
+
+
+# 月包
+class MonthlyStrategy(PricingStrategy):
+    def calculate_cost(self, months):
+        return 2.9 * months
+
+
+# 季包
+class QuarterlyStrategy(PricingStrategy):
+    def calculate_cost(self, months):
+        # 每季度3个月
+        quarters = months // 3
+        remainder = months % 3
+        return 6.9 * quarters + 2.9 * remainder
+
+
+# 年包
+class AnnualStrategy(PricingStrategy):
+    def calculate_cost(self, months):
+        # 每年12个月
+        years = months // 12
+        remainder = months % 12
+        return 19.9 * years + 2.9 * remainder
+
+
+# 上下文对象
+class CoffeePricingContext:
+    def __init__(self, strategy):
+        self.strategy = strategy
+
+    def set_strategy(self, strategy):
+        self.strategy = strategy
+
+    def get_total_cost(self, months):
+        return self.strategy.calculate_cost(months)
+
+
+# 客户端-实现动态切换，以月为基本单位，给与用户最大优惠
+# 创建具体的策略对象
+monthly_strategy = MonthlyStrategy()
+quarterly_strategy = QuarterlyStrategy()
+annual_strategy = AnnualStrategy()
+
+# 创建咖啡定价上下文，并设置初始策略
+pricing_context = CoffeePricingContext(monthly_strategy)
+
+payment_plan = [quarterly_strategy, annual_strategy]
+
+# 各套餐价格
+cost = []
+
+# 假设用户选择10个月
+cost.append(pricing_context.get_total_cost(10))
+
+for plan in payment_plan:
+    pricing_context.set_strategy(plan)
+    cost.append(pricing_context.get_total_cost(10))
+
+minimum_cost = min(cost)
+print(f"您的最优价格: {minimum_cost}")
+```
 
 ### 其他设计模式 未完待续, 点赞关注不迷路!
 
